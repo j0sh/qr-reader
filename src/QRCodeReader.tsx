@@ -1,7 +1,7 @@
-import React from 'react';
+import { useState, useCallback, useEffect, ReactElement, FC as ReactFC }  from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Html5Qrcode } from 'html5-qrcode';
-import * as OTPAuth from 'otpauth';
+import { URI as OTPAuthURI } from 'otpauth';
 
 import ClipboardIcon from './ClipboardIcon';
 
@@ -20,14 +20,14 @@ function copyClip(msg:string){
   };
 }
 
-const QRCodeReader: React.FC = () => {
-  const [isProcessing, setIsProcessing] = React.useState<boolean>(false);
-  const [decodedText, setDecodedText] = React.useState<string | React.ReactElement[] | null>(null);
-  const [totpCode, setTotpCode] = React.useState<string | null>(null);
-  const [imageSrc, setImageSrc] = React.useState<string | null>(null);
+const QRCodeReader: ReactFC = () => {
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [decodedText, setDecodedText] = useState<string | ReactElement[] | null>(null);
+  const [totpCode, setTotpCode] = useState<string | null>(null);
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
 
 
-  const onDrop = React.useCallback((acceptedFiles: File[]) => {
+  const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     const reader = new FileReader();
     setIsProcessing(true);
@@ -52,7 +52,7 @@ const QRCodeReader: React.FC = () => {
       if (qrCodeMessage.startsWith('otpauth://')) {
         try {
           // Parse the OTP URL
-          const otp = OTPAuth.URI.parse(qrCodeMessage);
+          const otp = OTPAuthURI.parse(qrCodeMessage);
           // Generate the TOTP token
           const token = otp.generate();
           setTotpCode(token);
@@ -72,7 +72,7 @@ const QRCodeReader: React.FC = () => {
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
-  React.useEffect(() => {
+  useEffect(() => {
     const pasteHandler = (ev : ClipboardEvent) => {
       ev.preventDefault();
       const clipboardData = ev.clipboardData;
