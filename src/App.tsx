@@ -6,7 +6,7 @@ function App() {
       <h1 className="text-4xl">QR Code Reader</h1>
       <div>
         <p>All processing is done locally. Data never leaves your device.</p>
-        <p>Special processing for TOTP codes</p>
+        <p>Special processing for TOTP codes and Google Authenticator OTP exports</p>
       </div>
       <QRCodeReader />
       <p>By <a href="https://transfix.ai">Transfix</a> in San Diego 🌴</p>

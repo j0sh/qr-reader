@@ -2,6 +2,8 @@ import { useState, useCallback, useEffect, ReactElement, FC as ReactFC }  from '
 import { useDropzone } from 'react-dropzone';
 import { Html5Qrcode } from 'html5-qrcode';
 import { URI as OTPAuthURI } from 'otpauth';
+import { decodeMigrationPayload } from './otp-migration/otp-migration'
+import { base32Encode } from './base32'
 
 import ClipboardIcon from './ClipboardIcon';
 
@@ -12,6 +14,18 @@ function isValidURL(s:string){
   } catch(_) {
     return false;
   }
+}
+
+function decodeOTPAuthMigration(s:string){
+  // google authenticator URL export
+  const url = new URL(s);
+  const data = url.searchParams.get('data');
+  if (!data) throw new Error("Invalid base64 data");
+  const buffer = Uint8Array.from(atob(data.replace(' ', '+')), c => c.charCodeAt(0));
+  const m = decodeMigrationPayload(buffer);
+  return m.otp_parameters?.map(e => {
+    return {...e, secret:base32Encode(e.secret || new Uint8Array())}
+  })
 }
 
 function copyClip(msg:string){
@@ -59,6 +73,15 @@ const QRCodeReader: ReactFC = () => {
         } catch (error) {
           console.error('Error generating TOTP code:', error);
           setDecodedText("Invalid OTP code: "+qrCodeMessage);
+        }
+      }
+      if (qrCodeMessage.startsWith('otpauth-migration://offline')) {
+        try {
+          const m = decodeOTPAuthMigration(qrCodeMessage);
+          setDecodedText(JSON.stringify(m));
+        } catch (error) {
+          console.error('Error decoding otpauth migration:', error, qrCodeMessage);
+          setDecodedText("Unable to decode otpauth migration: "+qrCodeMessage);
         }
       }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

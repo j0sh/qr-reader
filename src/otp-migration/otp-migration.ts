@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 export const enum Algorithm {
   ALGORITHM_TYPE_UNSPECIFIED = "ALGORITHM_TYPE_UNSPECIFIED",
   SHA1 = "SHA1",
